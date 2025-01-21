@@ -5,7 +5,7 @@
 #include "d3dx9.h"
 #include "Graphics.h"
 #include "TriStrip.h"
-
+#include <fstream>
 #include <stack>
 
 namespace Boy

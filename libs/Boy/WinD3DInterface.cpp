@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "Boy/Mouse.h"
 #include "BoyLib/BoyUtil.h"
-#include "dxerr9.h"
+#include "dxerr.h"
 #include "DXUT.h"
 #include "Environment.h"
 #include <fstream>
@@ -418,9 +418,9 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
     DXUTSetCallbackD3D9DeviceDestroyed(onDestroyDevice);
     DXUTSetCallbackMsgProc(MsgProc,game);
 	DXUTSetCallbackKeyboard(keyPressed);
-	DXUTSetCallbackChar(charPressed);
+	//DXUTSetCallbackChar(charPressed);
 	DXUTSetCallbackMouse(mouseEvent, true);
-	DXUTSetCallbackAskScreenSize(askScreenSize,this);
+	//DXUTSetCallbackAskScreenSize(askScreenSize,this);
 
     // initialize:
     DXUTInit();
@@ -801,12 +801,12 @@ void WinD3DInterface::assertSuccess(HRESULT hr)
 //#ifdef _DEBUG
 	if (hr<0)
 	{
-		const WCHAR *err = DXGetErrorString9(hr);
-		const WCHAR *desc = DXGetErrorDescription9(hr);
+		const WCHAR *err = DXGetErrorString(hr);
+		//const WCHAR *desc = DXGetErrorDescription(hr);
 		wprintf(err);
 		printf("\n");
-		wprintf(desc);
-		printf("\n");
+		//wprintf(desc);
+		//printf("\n");
 	}
 //#endif
 }
