@@ -15,10 +15,11 @@ We hope this inspires people to play around with new ideas and saves them the an
 3.  Unzip irrKlang-1.1.0.zip into /libs. It will create a direcory called irrKlang-1.1.0.
 4.  Copy <root>/libs/irrKlang-1.1.0/bin/win32-visualStudio/irrKlang.dll into <root>/demo1 and <root>/demo2 (or add the above directory to your path so that the demos can find the irrKlang dll)
 5.  Find yourself a copy of d3dx9\_43.dll and put a copy of it in the demo1 and demo2 directories.  
-**NOTICE 1**: You can find the dll on packages/Microsoft.DXSDK.D3DX.9.29.952.8/build/native/release/bin/x86 after download the NuGet packages  
-**NOTICE 2**: Debug Builds need D3dx9d_43.dll instead, it's found in packages/Microsoft.DXSDK.D3DX.9.29.952.8/build/native/debug/bin/x86 after download the NuGet packages 
-1.  Start up the Visual Studio solution <root>/2dboy.sln (requires Visual Studio 2022)
-2.  Build and run!
+**NOTICE 1**: You can find the dll on /packages/Microsoft.DXSDK.D3DX.9.29.952.8/build/native/release/bin/x86 after download the NuGet packages  
+**NOTICE 2**: Debug Builds need D3dx9d_43.dll instead, it's found in packages/Microsoft.DXSDK.D3DX.9.29.952.8/build/native/debug/bin/x86 after download the NuGet packages  
+6. Grab SDL.dll from /libs/SDL-1.2.12/lib and place it on the demo1 and demo2 folders  
+7.  Start up the Visual Studio solution <root>/2dboy.sln (requires Visual Studio 2022)
+8.  Build and run!
 
 ### Misc Notes
 
