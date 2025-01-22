@@ -276,8 +276,10 @@ protected:
         void* m_DeviceRemovedFuncUserContext;            // user context for Direct3D device removed callback
         void* m_FrameMoveFuncUserContext;                // user context for frame move callback
         void* m_KeyboardFuncUserContext;                 // user context for keyboard callback
+        void* m_CharFuncUserContext;					 // user context for char callback (Added by 2D BOY)
         void* m_MouseFuncUserContext;                    // user context for mouse callback
         void* m_WindowMsgFuncUserContext;                // user context for window messages callback
+        void* m_AskScreenSizeFuncUserContext;            // user context for screen size callback  (Added by 2D BOY)
 
         void* m_IsD3D9DeviceAcceptableFuncUserContext;   // user context for is D3D9 device acceptable callback
         void* m_D3D9DeviceCreatedFuncUserContext;        // user context for D3D9 device created callback
