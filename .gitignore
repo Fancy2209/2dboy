@@ -7,3 +7,5 @@ irrKlang-1.1.0
 packages
 demo*/*.dll
 demo*/*.exe
+*.vcxproj.user
+*.pdb
