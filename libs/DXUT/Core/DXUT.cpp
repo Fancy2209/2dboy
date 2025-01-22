@@ -253,8 +253,10 @@ protected:
         LPDXUTCALLBACKDEVICEREMOVED m_DeviceRemovedFunc;        // Direct3D device removed callback
         LPDXUTCALLBACKFRAMEMOVE m_FrameMoveFunc;            // frame move callback
         LPDXUTCALLBACKKEYBOARD m_KeyboardFunc;             // keyboard callback
+        LPDXUTCALLBACKCHAR m_CharFunc;             // char callback (ADDED BY 2D BOY)
         LPDXUTCALLBACKMOUSE m_MouseFunc;                // mouse callback
         LPDXUTCALLBACKMSGPROC m_WindowMsgFunc;            // window messages callback
+        LPDXUTCALLBACKASKSCREENSIZE m_AskScreenSizeFunc;            // screen size callback (ADDED BY 2D BOY)
 
         LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE m_IsD3D9DeviceAcceptableFunc;   // D3D9 is device acceptable callback
         LPDXUTCALLBACKD3D9DEVICECREATED m_D3D9DeviceCreatedFunc;        // D3D9 device created callback
@@ -509,8 +511,10 @@ public:
     GET_SET_ACCESSOR( LPDXUTCALLBACKDEVICEREMOVED, DeviceRemovedFunc );
     GET_SET_ACCESSOR( LPDXUTCALLBACKFRAMEMOVE, FrameMoveFunc );
     GET_SET_ACCESSOR( LPDXUTCALLBACKKEYBOARD, KeyboardFunc );
+    GET_SET_ACCESSOR( LPDXUTCALLBACKCHAR, CharFunc ); // Added by 2D BOY
     GET_SET_ACCESSOR( LPDXUTCALLBACKMOUSE, MouseFunc );
     GET_SET_ACCESSOR( LPDXUTCALLBACKMSGPROC, WindowMsgFunc );
+    GET_SET_ACCESSOR( LPDXUTCALLBACKASKSCREENSIZE, AskScreenSizeFunc ); // Added by 2D BOY
 
     GET_SET_ACCESSOR( LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE, IsD3D9DeviceAcceptableFunc );
     GET_SET_ACCESSOR( LPDXUTCALLBACKD3D9DEVICECREATED, D3D9DeviceCreatedFunc );
@@ -530,8 +534,10 @@ public:
     GET_SET_ACCESSOR( void*, DeviceRemovedFuncUserContext );
     GET_SET_ACCESSOR( void*, FrameMoveFuncUserContext );
     GET_SET_ACCESSOR( void*, KeyboardFuncUserContext );
+    GET_SET_ACCESSOR( void*, CharFuncUserContext ); // 2D BOY
     GET_SET_ACCESSOR( void*, MouseFuncUserContext );
     GET_SET_ACCESSOR( void*, WindowMsgFuncUserContext );
+    GET_SET_ACCESSOR( void*, AskScreenSizeFuncUserContext ); // 2D BOY
 
     GET_SET_ACCESSOR( void*, IsD3D9DeviceAcceptableFuncUserContext );
     GET_SET_ACCESSOR( void*, D3D9DeviceCreatedFuncUserContext );
@@ -726,8 +732,15 @@ void WINAPI DXUTSetCallbackDeviceChanging( LPDXUTCALLBACKMODIFYDEVICESETTINGS pC
 void WINAPI DXUTSetCallbackDeviceRemoved( LPDXUTCALLBACKDEVICEREMOVED pCallback, void* pUserContext )                          { GetDXUTState().SetDeviceRemovedFunc( pCallback ); GetDXUTState().SetDeviceRemovedFuncUserContext( pUserContext ); }
 void WINAPI DXUTSetCallbackFrameMove( LPDXUTCALLBACKFRAMEMOVE pCallback, void* pUserContext )                                  { GetDXUTState().SetFrameMoveFunc( pCallback );  GetDXUTState().SetFrameMoveFuncUserContext( pUserContext ); }
 void WINAPI DXUTSetCallbackKeyboard( LPDXUTCALLBACKKEYBOARD pCallback, void* pUserContext )                                    { GetDXUTState().SetKeyboardFunc( pCallback );  GetDXUTState().SetKeyboardFuncUserContext( pUserContext ); }
+
+// ADDED BY 2D BOY
+void WINAPI DXUTSetCallbackChar( LPDXUTCALLBACKCHAR pCallback, void* pUserContext )                                            { GetDXUTState().SetCharFunc( pCallback );  GetDXUTState().SetCharFuncUserContext( pUserContext ); }
+
 void WINAPI DXUTSetCallbackMouse( LPDXUTCALLBACKMOUSE pCallback, bool bIncludeMouseMove, void* pUserContext )                  { GetDXUTState().SetMouseFunc( pCallback ); GetDXUTState().SetNotifyOnMouseMove( bIncludeMouseMove );  GetDXUTState().SetMouseFuncUserContext( pUserContext ); }
 void WINAPI DXUTSetCallbackMsgProc( LPDXUTCALLBACKMSGPROC pCallback, void* pUserContext )                                      { GetDXUTState().SetWindowMsgFunc( pCallback );  GetDXUTState().SetWindowMsgFuncUserContext( pUserContext ); }
+
+// Added by 2D BOY
+void WINAPI DXUTSetCallbackAskScreenSize( LPDXUTCALLBACKASKSCREENSIZE pCallback, void* pUserContext )                          { GetDXUTState().SetAskScreenSizeFunc( pCallback );  GetDXUTState().SetAskScreenSizeFuncUserContext( pUserContext ); }
 
 // Direct3D 9 callbacks
 void WINAPI DXUTSetCallbackD3D9DeviceAcceptable( LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE pCallback, void* pUserContext )          { GetDXUTState().SetIsD3D9DeviceAcceptableFunc( pCallback ); GetDXUTState().SetIsD3D9DeviceAcceptableFuncUserContext( pUserContext ); }
@@ -1287,6 +1300,15 @@ LRESULT CALLBACK DXUTStaticWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
         LPDXUTCALLBACKKEYBOARD pCallbackKeyboard = GetDXUTState().GetKeyboardFunc();
         if( pCallbackKeyboard )
             pCallbackKeyboard( ( UINT )wParam, bKeyDown, bAltDown, GetDXUTState().GetKeyboardFuncUserContext() );
+    }
+
+    // Added by 2D BOY
+    // Consolidate the character messages and pass them to the app's character callback (Added by 2D BOY)
+	if( uMsg == WM_CHAR)
+    {
+        LPDXUTCALLBACKCHAR pCallbackChar = GetDXUTState().GetCharFunc();
+        if( pCallbackChar )
+            pCallbackChar( ( UINT )wParam, GetDXUTState().GetCharFuncUserContext() );
     }
 
     // Consolidate the mouse button messages and pass them to the app's mouse callback
@@ -5283,6 +5305,23 @@ HRESULT WINAPI DXUTToggleFullScreen()
         GetDXUTState().GetFullScreenBackBufferWidthAtModeChange();
     UINT nHeight = ( bIsWindowed ) ? GetDXUTState().GetWindowBackBufferHeightAtModeChange() :
         GetDXUTState().GetFullScreenBackBufferHeightAtModeChange();
+        
+	//////////////////////////////////////////////////////////////////////
+	// [ron carmel: enhancement to allow selection of 
+	//  screen size post fullscreen toggle]
+	//////////////////////////////////////////////////////////////////////
+    // ask the application for the window size:
+	int width = 0;
+	int height = 0;
+    LPDXUTCALLBACKASKSCREENSIZE pCallbackAskScreenSize = GetDXUTState().GetAskScreenSizeFunc();
+    if( pCallbackAskScreenSize )
+    {
+		pCallbackAskScreenSize( &width, &height, GetDXUTState().GetAskScreenSizeFuncUserContext() );
+		nWidth = (UINT)width;
+		nHeight = (UINT)height;
+    }
+	//////////////////////////////////////////////////////////////////////
+
 
     if( nWidth > 0 && nHeight > 0 )
     {

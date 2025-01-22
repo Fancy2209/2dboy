@@ -418,9 +418,9 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
     DXUTSetCallbackD3D9DeviceDestroyed(onDestroyDevice);
     DXUTSetCallbackMsgProc(MsgProc,game);
 	DXUTSetCallbackKeyboard(keyPressed);
-	//DXUTSetCallbackChar(charPressed);
+	DXUTSetCallbackChar(charPressed);
 	DXUTSetCallbackMouse(mouseEvent, true);
-	//DXUTSetCallbackAskScreenSize(askScreenSize,this);
+	DXUTSetCallbackAskScreenSize(askScreenSize,this);
 
     // initialize:
     DXUTInit();
