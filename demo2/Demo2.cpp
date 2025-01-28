@@ -9,6 +9,7 @@
 #include "Boy/ResourceManager.h"
 #include "Boy/SoundPlayer.h"
 #include <string>
+#include "SDL3/SDL.h"
 
 #define SHIP_ROT_SPEED 200.0f
 #define SHIP_ACCELERATION 30.0f

@@ -1,3 +1,5 @@
+
+
 2D BOY's Boy Framework
 
 ### Overview
@@ -7,6 +9,11 @@ This is a trimmed down and slightly modified version of the framework used in th
 On a more positive note, it does fulfill one basic need well:  it was build with rapid prototyping of 2D games in mind and tries to minimize the amount of non-game setup work required to get something running.  All the stuff that 99.9% of 2D games have in common has been pulled out into this reusable framework.  It can render 2D graphics, read input from a variety of devices, and play sounds.  It includes a resource manager for loading/unloading resources, a persistence layer for saving game state, and even a file access abstraction.  Two demos are included.  One illustrates a minimalistic use of the framework (demo1) and the other is a quick remake of the classic arcade game Asteroids made in 12 hours (demo2).  
   
 We hope this inspires people to play around with new ideas and saves them the annoyance of having to reinvent the wheel.  If you make something cool, we encourage you to post it to our forum and share the joy!  
+
+Can I use this in Commerical ProductS?
+
+You're welcome to use and distribute it for non-commercial purposes
+
 
 ### Setup Instructions
 

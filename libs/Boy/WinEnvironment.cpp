@@ -1,5 +1,6 @@
 #include "WinEnvironment.h"
 
+#include "SDL3/SDL.h"
 #include <assert.h>
 #include "BoyLib/md5.h"
 #include <fstream>
@@ -236,7 +237,7 @@ GamePad *WinEnvironment::getGamePad(int i)
 void WinEnvironment::showSystemMouse(bool show)
 {
 	mShowSystemMouse = show;
-	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+	show ? SDL_ShowCursor() : SDL_HideCursor();
 }
 
 int WinEnvironment::getKeyboardCount()
@@ -266,7 +267,7 @@ TriStrip *WinEnvironment::createTriStrip(int numVerts)
 	return strip;
 }
 
-SDL_semaphore *gLoadingSemaphore;
+SDL_Semaphore *gLoadingSemaphore;
 
 int loadingProc(void *data)
 {
@@ -282,7 +283,7 @@ int loadingProc(void *data)
 	game->load();
 
 	// unlock the loading semaphore:
-	SDL_SemPost(gLoadingSemaphore);
+	SDL_SignalSemaphore(gLoadingSemaphore);
 
 	return 0;
 }
@@ -304,20 +305,31 @@ void WinEnvironment::startMainLoop()
 	gLoadingSemaphore = NULL;
 
 	// start loading thread:
-	SDL_CreateThread(loadingProc, mGame);
+	SDL_CreateThread(loadingProc, "loadingThread" ,mGame);
 
 	// timing variables:
 	mT0 = SDL_GetTicks();
 	mIntervalStartTime = SDL_GetTicks();
 
+	// Var to poll events
+	SDL_Event event;
+
 	// main loop:
 	while (!mShutdownRequested)
 	{
+		// SDL Event Stuff
+		SDL_PollEvent(&event);
+		switch(event.type) 
+		{
+			default:
+				break;
+		}
+
 		// keep track of when this iteration of the main loop started:
 		Uint32 t0 = SDL_GetTicks();
 
 		// if the loading thread is done:
-		if (gLoadingSemaphore!=NULL && SDL_SemTryWait(gLoadingSemaphore)==0)
+		if (gLoadingSemaphore!=NULL && SDL_TryWaitSemaphore(gLoadingSemaphore))
 		{
 			// get rid of the semaphore:
 			SDL_DestroySemaphore(gLoadingSemaphore);
@@ -396,7 +408,7 @@ void WinEnvironment::draw()
 	Uint32 t0 = SDL_GetTicks();
 	bool canDraw = mPlatformInterface->beginScene();
 	Uint32 t1 = SDL_GetTicks();
-
+	assert(canDraw==true);
 	if (!canDraw)
 	{
 		return;
@@ -629,7 +641,7 @@ bool WinEnvironment::isFullScreen()
 
 void WinEnvironment::toggleFullScreen()
 {
-	DXUTToggleFullScreen();
+	isFullScreen() ? SDL_SetWindowFullscreen(mPlatformInterface->GetSDLWindow(), false) : SDL_SetWindowFullscreen(mPlatformInterface->GetSDLWindow(), true);
 	mGame->fullscreenToggled(isFullScreen());
 }
 
@@ -780,7 +792,7 @@ void WinEnvironment::checkMouseInBounds()
 {
 	POINT p;
 	WINDOWINFO info;
-	if (GetCursorPos(&p) && GetWindowInfo(DXUTGetHWND(),&info))
+	if (GetCursorPos(&p) && (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(mPlatformInterface->GetSDLWindow()), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL) ,&info)
 	{
 		bool mouseInBounds = 
 			p.x>=info.rcClient.left && 

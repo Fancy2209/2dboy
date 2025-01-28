@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "Boy/Mouse.h"
 #include "BoyLib/BoyUtil.h"
+#include "d3dx9math.h"
 #include "Environment.h"
 #include <fstream>
 #include "Game.h"
@@ -25,53 +26,6 @@ using namespace Boy;
 #define DEFAULT_D3DFORMAT D3DFMT_X8R8G8B8
 
 #include "BoyLib/CrtDbgNew.h"
-
-/*
-bool getPresentationParameters(D3DPRESENT_PARAMETERS &pp, int width, int height, bool windowed)
-{
-	pp.AutoDepthStencilFormat = D3DFMT_D16;
-	pp.BackBufferCount = 3;
-	pp.BackBufferFormat = (windowed ? D3DFMT_UNKNOWN : DEFAULT_D3DFORMAT);
-	pp.BackBufferWidth = width;
-	pp.BackBufferHeight = height;
-	pp.EnableAutoDepthStencil = true;
-	pp.Flags = 0;
-	pp.FullScreen_RefreshRateInHz = 0;
-	pp.hDeviceWindow = GetActiveWindow();
-	pp.MultiSampleQuality = 0;
-	pp.MultiSampleType = D3DMULTISAMPLE_NONE;
-	pp.PresentationInterval = (windowed ? D3DPRESENT_INTERVAL_IMMEDIATE : D3DPRESENT_INTERVAL_DEFAULT);
-	pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	pp.Windowed = windowed;
-
-	// find the appropriate refresh rate for the desired resolution:
-	if (!windowed)
-	{
-		D3DDISPLAYMODE mode;
-		D3DFORMAT format = pp.BackBufferFormat;
-		
-		int modeCount = mD3D9Device->GetDirect3D()->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
-		for (int i=0 ; i<modeCount ; i++)
-		{
-			mD3D9Device->GetDirect3D()->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
-			if (mode.Width==pp.BackBufferWidth &&
-				mode.Height==pp.BackBufferHeight)
-			{
-				if (mD3D9Device->GetDirect3D()->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
-				{
-					pp.FullScreen_RefreshRateInHz = mode.RefreshRate;
-				}
-			}
-		}
-		if (pp.FullScreen_RefreshRateInHz == 0)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-*/
 
 static int gAltDown = false;
 static int gShiftDown = false;
@@ -288,6 +242,7 @@ void WinD3DInterface::endScene()
 	//Show the results
 	HRESULT hr = mD3D9Device->Present(NULL,NULL,NULL,NULL);
 	handleError(hr);
+	__debugbreak();
 }
 
 void WinD3DInterface::handleError(HRESULT hr)
@@ -522,7 +477,7 @@ void WinD3DInterface::assertSuccess(HRESULT hr)
 //#ifdef _DEBUG
 	if (hr<0)
 	{
-		//const WCHAR *err = DXGetErrorString(hr);
+		//const WCHAR *err = DXGetError(hr);
 		//const WCHAR *desc = DXGetErrorDescription(hr);
 		//wprintf(err);
 		//printf("\n");
@@ -635,7 +590,7 @@ IDirect3DVertexBuffer9 *WinD3DInterface::createVertexBuffer(int numVerts)
 void WinD3DInterface::initD3D()
 {
 	// create renderer:
-	mRenderer = SDL_CreateRenderer(mWindow, NULL);
+	mRenderer = SDL_CreateRenderer(mWindow, "direct3d");
 	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
 
 	// get some device capabilities:
@@ -893,4 +848,14 @@ void WinD3DInterface::handleResetDevice()
 
 	// notify the game of the device reset:
 	mGame->windowResized(0,0,SDL_GetWindowSurface(mWindow)->w,SDL_GetWindowSurface(mWindow)->h);
+}
+
+IDirect3DDevice9* WinD3DInterface::GetD3DDevice()
+{
+	return mD3D9Device;
+}
+
+SDL_Window* WinD3DInterface::GetSDLWindow()
+{
+	return mWindow;
 }

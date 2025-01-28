@@ -1,5 +1,6 @@
 #include "Boy/Environment.h"
 #include "Demo2.h"
+#include "SDL3/SDL_main.h"
 
 int main(int argc, char* argv[])
 {
@@ -8,9 +9,9 @@ int main(int argc, char* argv[])
 		Demo2::instance(),
 		1024, // width
 		768, // height
-		false, // fullscreen
-		"demo1", // window title
-		"demo1.dat", // persistence layer file name
+		true, // fullscreen
+		"demo2", // window title
+		"demo2.dat", // persistence layer file name
 		NULL); // no encryption
 
 	// start the main loop

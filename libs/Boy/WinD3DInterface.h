@@ -2,6 +2,7 @@
 
 #include "d3d9.h"
 #include "d3dx9.h"
+#include "SDL3/SDL.h"
 #include "Environment.h"
 #include "Graphics.h"
 #include <string>
@@ -68,6 +69,8 @@ namespace Boy
 		void dumpInfo(std::ofstream &file);
 		void handleLostDevice();
 		void handleResetDevice();
+		IDirect3DDevice9* GetD3DDevice();
+		SDL_Window* GetSDLWindow();
 
 	private:
 
