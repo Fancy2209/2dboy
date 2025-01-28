@@ -83,6 +83,10 @@ namespace Boy
 
 		Boy::Game				*mGame;
 
+		SDL_Window				*mWindow;
+		SDL_Renderer 			*mRenderer;
+		IDirect3DDevice9 		*mD3D9Device;
+
 		D3DPRESENT_PARAMETERS	mPresentationParameters;
 
 		bool					mRendering;

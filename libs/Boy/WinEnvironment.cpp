@@ -2,10 +2,8 @@
 
 #include <assert.h>
 #include "BoyLib/md5.h"
-#include "DXUT.h"
 #include <fstream>
 #include "Game.h"
-#include "irrKlang.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "ResourceManager.h"

@@ -62,10 +62,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib d3dx9.lib DxErr9.lib irrKlang.lib comctl32.lib"
+				AdditionalDependencies="SDL3.lib d3dx9.lib DxErr9.lib irrKlang.lib comctl32.lib"
 				OutputFile="$(ProjectDir)\$(ProjectName)d.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="../libs/dxsdk/200806/Lib/x86;../libs/SDL-1.2.12/lib;../libs/libcurl-7.13.1-ssl-zlib-ares/lib;../libs/irrKlang-1.1.0/lib/Win32-visualStudio"
+				AdditionalLibraryDirectories="../libs/dxsdk/200806/Lib/x86;../libs/SDL3-3.2.0/lib;../libs/libcurl-7.13.1-ssl-zlib-ares/lib;../libs/irrKlang-1.1.0/lib/Win32-visualStudio"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -137,10 +137,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib d3d9x.lib d3d9.lib DxErr9.lib irrKlang.lib comctl32.lib"
+				AdditionalDependencies="SDL3.lib d3d9x.lib d3d9.lib DxErr9.lib irrKlang.lib comctl32.lib"
 				OutputFile="$(ProjectDir)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="../libs/dxsdk/200806/Lib/x86;../libs/SDL-1.2.12/lib;../libs/libcurl-7.13.1-ssl-zlib-ares/lib;../libs/irrKlang-1.1.0/lib/Win32-visualStudio"
+				AdditionalLibraryDirectories="../libs/dxsdk/200806/Lib/x86;../libs/SDL3-3.2.0/lib;../libs/libcurl-7.13.1-ssl-zlib-ares/lib;../libs/irrKlang-1.1.0/lib/Win32-visualStudio"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
