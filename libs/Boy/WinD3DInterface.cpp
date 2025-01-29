@@ -123,52 +123,7 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
 
 	// initialize d3d:
-	D3DPRESENT_PARAMETERS pp;
-	ZeroMemory(&pp, sizeof(pp)); 
-	pp.AutoDepthStencilFormat = D3DFMT_D16;
-	pp.BackBufferCount = 3;
-	pp.BackBufferFormat = (windowed ? D3DFMT_UNKNOWN : DEFAULT_D3DFORMAT);
-	pp.BackBufferWidth = width;
-	pp.BackBufferHeight = height;
-	pp.EnableAutoDepthStencil = true;
-	pp.Flags = 0;
-	pp.FullScreen_RefreshRateInHz = 0;
-	pp.hDeviceWindow = GetActiveWindow();
-	pp.MultiSampleQuality = 0;
-	pp.MultiSampleType = D3DMULTISAMPLE_NONE;
-	pp.PresentationInterval = (windowed ? D3DPRESENT_INTERVAL_IMMEDIATE : D3DPRESENT_INTERVAL_DEFAULT);
-	pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	pp.Windowed = windowed;
-
-
-	// find the appropriate refresh rate for the desired resolution:
-	if (!windowed)
-	{
-		D3DDISPLAYMODE mode;
-		D3DFORMAT format = pp.BackBufferFormat;
-		IDirect3D9 *pD3DObject = nullptr;
-		mD3D9Device->GetDirect3D(&pD3DObject);
-		int modeCount = pD3DObject->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
-		for (int i=0 ; i<modeCount ; i++)
-		{
-			pD3DObject->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
-			if (mode.Width==pp.BackBufferWidth &&
-				mode.Height==pp.BackBufferHeight)
-			{
-				if (pD3DObject->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
-				{
-					pp.FullScreen_RefreshRateInHz = mode.RefreshRate;
-				}
-			}
-		}
-		if (pp.FullScreen_RefreshRateInHz == 0)
-		{
-			//return false;
-		}
-	}
-	mD3D9Device->Reset(&pp);
-	handleResetDevice();
-	//initD3D();
+	initD3D();
 
 	// create the vertex buffer to be used 
 	// for drawing subrects of images:
@@ -291,7 +246,6 @@ void WinD3DInterface::endScene()
 	//Show the results
 	HRESULT hr = mD3D9Device->Present(NULL,NULL,NULL,NULL);
 	handleError(hr);
-	__debugbreak();
 }
 
 void WinD3DInterface::handleError(HRESULT hr)
@@ -638,6 +592,11 @@ IDirect3DVertexBuffer9 *WinD3DInterface::createVertexBuffer(int numVerts)
 
 void WinD3DInterface::initD3D()
 {
+	// Init Depth and Stencil Buffer
+	IDirect3DSurface9* ppSurface;
+	mD3D9Device->CreateDepthStencilSurface(getWidth(), getHeight(), D3DFMT_D16, D3DMULTISAMPLE_NONE, 0, false, &ppSurface, NULL);
+	mD3D9Device->SetDepthStencilSurface(ppSurface);
+
 	// get some device capabilities:
 	D3DCAPS9 caps;
 	mD3D9Device->GetDeviceCaps(&caps);
