@@ -123,7 +123,8 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
 
 	// initialize d3d:
-	D3DPRESENT_PARAMETERS *pp;
+	D3DPRESENT_PARAMETERS pp;
+	ZeroMemory(&pp, sizeof(pp)); 
 	pp.AutoDepthStencilFormat = D3DFMT_D16;
 	pp.BackBufferCount = 3;
 	pp.BackBufferFormat = (windowed ? D3DFMT_UNKNOWN : DEFAULT_D3DFORMAT);
@@ -146,7 +147,7 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 		D3DDISPLAYMODE mode;
 		D3DFORMAT format = pp.BackBufferFormat;
 		IDirect3D9 *pD3DObject = nullptr;
-		mD3D9Device->GetDirect3D(&pD3DObject)
+		mD3D9Device->GetDirect3D(&pD3DObject);
 		int modeCount = pD3DObject->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
 		for (int i=0 ; i<modeCount ; i++)
 		{
@@ -165,7 +166,7 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 			//return false;
 		}
 	}
-	mD3D9Device->Reset(pp);
+	mD3D9Device->Reset(&pp);
 	handleResetDevice();
 	//initD3D();
 
