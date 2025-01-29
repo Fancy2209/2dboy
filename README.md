@@ -10,7 +10,7 @@ On a more positive note, it does fulfill one basic need well:  it was build wit
   
 We hope this inspires people to play around with new ideas and saves them the annoyance of having to reinvent the wheel.  If you make something cool, we encourage you to post it to our forum and share the joy!  
 
-Can I use this in Commerical ProductS?
+### Can I use this in Commerical Products?
 
 You're welcome to use and distribute it for non-commercial purposes
 
