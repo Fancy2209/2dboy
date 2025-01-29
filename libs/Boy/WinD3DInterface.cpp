@@ -145,14 +145,16 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 	{
 		D3DDISPLAYMODE mode;
 		D3DFORMAT format = pp.BackBufferFormat;
-		int modeCount = mD3D9Device->GetDirect3D()->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
+		IDirect3D9 *pD3DObject = nullptr;
+		mD3D9Device->GetDirect3D(&pD3DObject)
+		int modeCount = pD3DObject->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
 		for (int i=0 ; i<modeCount ; i++)
 		{
-			mD3D9Device->GetDirect3D()->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
+			pD3DObject->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
 			if (mode.Width==pp.BackBufferWidth &&
 				mode.Height==pp.BackBufferHeight)
 			{
-				if (mD3D9Device->GetDirect3D()->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
+				if (pD3DObject->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
 				{
 					pp.FullScreen_RefreshRateInHz = mode.RefreshRate;
 				}
