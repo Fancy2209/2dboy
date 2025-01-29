@@ -42,6 +42,7 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
+        choco install wget 7zip
         cd libs
         wget http://www.ambiera.at/downloads/irrKlang-1.1.0.zip
         7z x irrKlang-1.1.0.zip
