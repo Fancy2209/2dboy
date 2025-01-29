@@ -1,6 +1,5 @@
 #include "Boy/Environment.h"
 #include "Demo2.h"
-#include "SDL3/SDL_main.h"
 
 int main(int argc, char* argv[])
 {
