@@ -118,8 +118,54 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 	mTitle = title;
 	mWindow = SDL_CreateWindow(mTitle.c_str(), width, height, SDL_WINDOW_RESIZABLE);
 
+	// create renderer:
+	mRenderer = SDL_CreateRenderer(mWindow, "direct3d");
+	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
+
 	// initialize d3d:
-	initD3D();
+	D3DPRESENT_PARAMETERS *pp;
+	pp.AutoDepthStencilFormat = D3DFMT_D16;
+	pp.BackBufferCount = 3;
+	pp.BackBufferFormat = (windowed ? D3DFMT_UNKNOWN : DEFAULT_D3DFORMAT);
+	pp.BackBufferWidth = width;
+	pp.BackBufferHeight = height;
+	pp.EnableAutoDepthStencil = true;
+	pp.Flags = 0;
+	pp.FullScreen_RefreshRateInHz = 0;
+	pp.hDeviceWindow = GetActiveWindow();
+	pp.MultiSampleQuality = 0;
+	pp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	pp.PresentationInterval = (windowed ? D3DPRESENT_INTERVAL_IMMEDIATE : D3DPRESENT_INTERVAL_DEFAULT);
+	pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	pp.Windowed = windowed;
+
+
+	// find the appropriate refresh rate for the desired resolution:
+	if (!windowed)
+	{
+		D3DDISPLAYMODE mode;
+		D3DFORMAT format = pp.BackBufferFormat;
+		int modeCount = mD3D9Device->GetDirect3D()->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
+		for (int i=0 ; i<modeCount ; i++)
+		{
+			mD3D9Device->GetDirect3D()->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
+			if (mode.Width==pp.BackBufferWidth &&
+				mode.Height==pp.BackBufferHeight)
+			{
+				if (mD3D9Device->GetDirect3D()->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
+				{
+					pp.FullScreen_RefreshRateInHz = mode.RefreshRate;
+				}
+			}
+		}
+		if (pp.FullScreen_RefreshRateInHz == 0)
+		{
+			//return false;
+		}
+	}
+	mD3D9Device->Reset(pp);
+	handleResetDevice();
+	//initD3D();
 
 	// create the vertex buffer to be used 
 	// for drawing subrects of images:
@@ -589,10 +635,6 @@ IDirect3DVertexBuffer9 *WinD3DInterface::createVertexBuffer(int numVerts)
 
 void WinD3DInterface::initD3D()
 {
-	// create renderer:
-	mRenderer = SDL_CreateRenderer(mWindow, "direct3d");
-	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
-
 	// get some device capabilities:
 	D3DCAPS9 caps;
 	mD3D9Device->GetDeviceCaps(&caps);
