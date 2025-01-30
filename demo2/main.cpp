@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 		Demo2::instance(),
 		1024, // width
 		768, // height
-		true, // fullscreen
+		false, // fullscreen
 		"demo2", // window title
 		"demo2.dat", // persistence layer file name
 		NULL); // no encryption

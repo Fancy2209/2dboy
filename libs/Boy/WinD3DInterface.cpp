@@ -31,6 +31,50 @@ static int gAltDown = false;
 static int gShiftDown = false;
 static int gControlDown = false;
 
+bool getPresentationParameters(D3DPRESENT_PARAMETERS &pp, int width, int height, bool windowed, unsigned int refreshRate, SDL_Window* window, IDirect3D9* d3dobject)
+{
+	pp.AutoDepthStencilFormat = D3DFMT_D16;
+	pp.BackBufferCount = 3;
+	pp.BackBufferFormat = (windowed ? D3DFMT_UNKNOWN : DEFAULT_D3DFORMAT);
+	pp.BackBufferWidth = width;
+	pp.BackBufferHeight = height;
+	pp.EnableAutoDepthStencil = true;
+	pp.Flags = 0;
+	pp.FullScreen_RefreshRateInHz = refreshRate;
+	pp.hDeviceWindow = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+	pp.MultiSampleQuality = 0;
+	pp.MultiSampleType = D3DMULTISAMPLE_NONE;
+	pp.PresentationInterval = (windowed ? D3DPRESENT_INTERVAL_IMMEDIATE : D3DPRESENT_INTERVAL_DEFAULT);
+	pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	pp.Windowed = windowed;
+
+	// find the appropriate refresh rate for the desired resolution:
+	if (!windowed)
+	{
+		D3DDISPLAYMODE mode;
+		D3DFORMAT format = pp.BackBufferFormat;
+		int modeCount = d3dobject->GetAdapterModeCount(D3DADAPTER_DEFAULT,format);
+		for (int i=0 ; i<modeCount ; i++)
+		{
+			d3dobject->EnumAdapterModes(D3DADAPTER_DEFAULT,format,i,&mode);
+			if (mode.Width==pp.BackBufferWidth &&
+				mode.Height==pp.BackBufferHeight)
+			{
+				if (d3dobject->CheckDeviceType(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, format, format, FALSE) == D3D_OK)
+				{
+					pp.FullScreen_RefreshRateInHz = mode.RefreshRate;
+				}
+			}
+		}
+		if (pp.FullScreen_RefreshRateInHz == 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 Keyboard::Key getKey(UINT nChar)
 {
 	switch (nChar)
@@ -116,13 +160,22 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 
 	// create window:
 	mTitle = title;
-	mWindow = SDL_CreateWindow(mTitle.c_str(), width, height, SDL_WINDOW_RESIZABLE);
-
-	// create renderer:
-	mRenderer = SDL_CreateRenderer(mWindow, "direct3d");
-	mD3D9Device = (IDirect3DDevice9 *)SDL_GetPointerProperty(SDL_GetRendererProperties(mRenderer), SDL_PROP_RENDERER_D3D9_DEVICE_POINTER, NULL);
+	mWindow = SDL_CreateWindow(mTitle.c_str(), width, height, windowed ? SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIGH_PIXEL_DENSITY : SDL_WINDOW_RESIZABLE|SDL_WINDOW_HIGH_PIXEL_DENSITY|SDL_WINDOW_FULLSCREEN);
 
 	// initialize d3d:
+	//mRenderer = SDL_CreateRenderer(mWindow, "direct3d");
+	mD3D9 = Direct3DCreate9(D3D_SDK_VERSION);
+	D3DPRESENT_PARAMETERS pp;
+	SDL_DisplayMode DM;
+	getPresentationParameters(pp, SDL_GetDesktopDisplayMode(1)->w, SDL_GetDesktopDisplayMode(1)->h, windowed, refreshRate, mWindow, mD3D9);
+	
+	mD3D9->CreateDevice(
+		D3DADAPTER_DEFAULT, 
+		D3DDEVTYPE_HAL, 
+		(HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(mWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL), 
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
+		&pp,
+		&mD3D9Device);
 	initD3D();
 
 	// create the vertex buffer to be used 
@@ -136,25 +189,29 @@ WinD3DInterface::WinD3DInterface(Game *game, int width, int height, const char *
 
 WinD3DInterface::~WinD3DInterface()
 {
+	mD3D9Device->Release();
+	mD3D9->Release();
 	SDL_DestroyWindow(mWindow);
-	SDL_DestroyRenderer(mRenderer);
 	SDL_Quit();
 }
 
 int WinD3DInterface::getWidth()
 {
-	return SDL_GetWindowSurface(mWindow)->w;
+	int w;
+	SDL_GetWindowSizeInPixels(mWindow, &w, NULL);
+	return w;
 }
 
 int WinD3DInterface::getHeight()
 {
-	return SDL_GetWindowSurface(mWindow)->h;
+	int h;
+	SDL_GetWindowSizeInPixels(mWindow, NULL, &h);
+	return h;
 }
 
 bool WinD3DInterface::isWindowed()
 {
-	// TODO
-	return true; //DXUTIsWindowed();
+	return !(SDL_GetWindowFlags(mWindow) & SDL_WINDOW_FULLSCREEN);
 }
 /*
 void WinD3DInterface::toggleFullScreen(bool toggle)
@@ -592,11 +649,6 @@ IDirect3DVertexBuffer9 *WinD3DInterface::createVertexBuffer(int numVerts)
 
 void WinD3DInterface::initD3D()
 {
-	// Init Depth and Stencil Buffer
-	IDirect3DSurface9* ppSurface;
-	mD3D9Device->CreateDepthStencilSurface(getWidth(), getHeight(), D3DFMT_D16, D3DMULTISAMPLE_NONE, 0, false, &ppSurface, NULL);
-	mD3D9Device->SetDepthStencilSurface(ppSurface);
-
 	// get some device capabilities:
 	D3DCAPS9 caps;
 	mD3D9Device->GetDeviceCaps(&caps);
@@ -851,7 +903,7 @@ void WinD3DInterface::handleResetDevice()
 	initD3D();
 
 	// notify the game of the device reset:
-	mGame->windowResized(0,0,SDL_GetWindowSurface(mWindow)->w,SDL_GetWindowSurface(mWindow)->h);
+	mGame->windowResized(0,0,getWidth(),getHeight());
 }
 
 IDirect3DDevice9* WinD3DInterface::GetD3DDevice()

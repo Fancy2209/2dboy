@@ -88,6 +88,7 @@ namespace Boy
 
 		SDL_Window				*mWindow;
 		SDL_Renderer 			*mRenderer;
+		IDirect3D9		 		*mD3D9;
 		IDirect3DDevice9 		*mD3D9Device;
 
 		D3DPRESENT_PARAMETERS	mPresentationParameters;

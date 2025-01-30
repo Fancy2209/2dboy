@@ -395,6 +395,7 @@ void Demo2::keyDown(wchar_t unicode, Boy::Keyboard::Key key, Boy::Keyboard::Modi
 		{
 			newGame();
 		}
+		break;
 	}
 
 	// when spacebar is hit and the gun is armed:
